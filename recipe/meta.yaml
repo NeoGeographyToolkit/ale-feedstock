@@ -22,7 +22,7 @@ requirements:
     - {{ stdlib("c") }}
     - cmake >=3.15
     - make
-    - eigen
+    - eigen >=3,<4
   host:
     - nlohmann_json =3.11.2
     - python
