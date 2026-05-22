@@ -9,7 +9,7 @@ source:
   sha256: 321ef9583254671fca414204044228cc9f3e8665fc639590f98d302122d42ab5
 
 build:
-  number: 0
+  number: 1
   entry_points:
     - isd_generate = ale.isd_generate:main
   skip: true  # [win]
@@ -22,10 +22,10 @@ requirements:
     - {{ stdlib("c") }}
     - cmake >=3.15
     - make
-    - eigen
   host:
-    - python
+    - eigen >=3,<4
     - nlohmann_json =3.11.2
+    - python
     - pip
     - setuptools
   run:
