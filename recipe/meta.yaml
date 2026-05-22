@@ -31,7 +31,7 @@ requirements:
     - pip
     - setuptools
   run:
-    - {{ pin_compatible("eigen", upper_bound="x.x.x") }}
+    # - {{ pin_compatible("eigen", upper_bound="x.x.x") }}
     - networkx
     - {{ pin_compatible('nlohmann_json', min_pin='x.x.x', max_pin='x.x.x') }}
     - numpy
