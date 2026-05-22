@@ -22,16 +22,13 @@ requirements:
     - {{ stdlib("c") }}
     - cmake >=3.15
     - make
-    - eigen
   host:
     - eigen
-    - eigen-abi
     - nlohmann_json =3.11.2
     - python
     - pip
     - setuptools
   run:
-    # - {{ pin_compatible("eigen", upper_bound="x.x.x") }}
     - networkx
     - {{ pin_compatible('nlohmann_json', min_pin='x.x.x', max_pin='x.x.x') }}
     - numpy
