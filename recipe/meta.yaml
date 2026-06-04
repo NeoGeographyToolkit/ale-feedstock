@@ -4,12 +4,16 @@ package:
   name: {{ name|lower }}
   version: {{ version }}
 
+# ASP build: source is DOI-USGS/ale main @ 94cdef7 (8 commits past the 1.2.0
+# tag), which INCLUDES our merged HRSC fix #716; the released 1.2.0 tarball
+# does NOT. setup.py hardcodes VERSION="1.2.0" so the version stays clean 1.2.0.
 source:
-  url: https://github.com/DOI-USGS/{{ name }}/archive/{{ version }}.tar.gz
-  sha256: 321ef9583254671fca414204044228cc9f3e8665fc639590f98d302122d42ab5
+  git_url: https://github.com/DOI-USGS/ale.git
+  git_rev: 94cdef7f792e9908d19d649d9c3006b820f2b3e3
 
 build:
-  number: 1
+  number: 0              # keep in sync with the asp_N below
+  string: asp_0          # ASP channel marker; bump to asp_1, asp_2... to re-spin (append-only)
   entry_points:
     - isd_generate = ale.isd_generate:main
   skip: true  # [win]
@@ -19,15 +23,31 @@ requirements:
     - python
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - {{ compiler('cxx') }}
-    - {{ stdlib("c") }}
+    # ASP: removed `{{ stdlib("c") }}` - it expanded to the bogus, unsatisfiable
+    # package c_osx-arm64 (c_stdlib variant is undefined in our local
+    # conda-build; conda-forge CI supplies it via conda-forge-pinning, we
+    # don't). The cxx compiler activation already brings the macOS sysroot.
     - cmake >=3.15
     - make
+    # ASP: pip+setuptools MUST be here in BUILD (not just host). build.sh runs
+    # `pip install . --no-build-isolation` with the BUILD-env python/pip, so the
+    # backend (setuptools.build_meta) must live in BUILD or pip dies with
+    # "BackendUnavailable: Cannot import 'setuptools.build_meta'". Pinned down
+    # because bleeding-edge pip 26 / setuptools 82 break the legacy setup.py.
+    - pip <26
+    - setuptools <80
   host:
     - eigen >=3,<4
     - nlohmann_json =3.11.2
     - python
-    - pip
-    - setuptools
+    # ASP: pin pip/setuptools DOWN. Unpinned, conda pulled pip 26.1.2 +
+    # setuptools 82.0.1 (bleeding edge); pip 26.x crashes internally
+    # resolving the local `pip install .` of ALE's legacy setup.py. The
+    # known-good combo (base env, verified building the wheel by hand) is
+    # pip 24.x / setuptools 75. Build-time only - does NOT affect isis_dev's
+    # runtime pip/setuptools.
+    - pip <26
+    - setuptools <80
   run:
     - networkx
     - {{ pin_compatible('nlohmann_json', min_pin='x.x.x', max_pin='x.x.x') }}
