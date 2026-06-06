@@ -12,8 +12,8 @@ source:
   git_rev: 94cdef7f792e9908d19d649d9c3006b820f2b3e3
 
 build:
-  number: 1              # keep in sync with the asp_N below
-  string: asp_1          # ASP channel marker; bump to asp_1, asp_2... to re-spin (append-only)
+  number: 2
+  string: asp_2          # rebuild with =asp* pins, gcc 14
   entry_points:
     - isd_generate = ale.isd_generate:main
   skip: true  # [win]
