@@ -12,8 +12,8 @@ source:
   git_rev: 94cdef7f792e9908d19d649d9c3006b820f2b3e3
 
 build:
-  number: 0              # keep in sync with the asp_N below
-  string: asp_0          # ASP channel marker; bump to asp_1, asp_2... to re-spin (append-only)
+  number: 1              # keep in sync with the asp_N below
+  string: asp_1          # ASP channel marker; bump to asp_1, asp_2... to re-spin (append-only)
   entry_points:
     - isd_generate = ale.isd_generate:main
   skip: true  # [win]
@@ -58,7 +58,7 @@ requirements:
     - pytz
     - scipy >=1.4.0
     - spiceypy >=2.3.0
-    - spiceql >=1.2.4,<2
+    - spiceql =1.3.0=asp*
     - requests
     - pyyaml
     - setuptools
