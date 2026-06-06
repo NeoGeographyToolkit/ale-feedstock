@@ -8,12 +8,12 @@ package:
 # tag), which INCLUDES our merged HRSC fix #716; the released 1.2.0 tarball
 # does NOT. setup.py hardcodes VERSION="1.2.0" so the version stays clean 1.2.0.
 source:
-  git_url: https://github.com/DOI-USGS/ale.git
-  git_rev: 94cdef7f792e9908d19d649d9c3006b820f2b3e3
+  git_url: https://github.com/oleg-alexandrov/ale.git
+  git_rev: 74a81fe07d8b009b4d6a7c9e1569972e20bf92d3
 
 build:
-  number: 5
-  string: asp_5          # rebuild with =asp* pins, gcc 14
+  number: 6
+  string: asp_6          # rebuild with =asp* pins, gcc 14
   entry_points:
     - isd_generate = ale.isd_generate:main
   skip: true  # [win]
