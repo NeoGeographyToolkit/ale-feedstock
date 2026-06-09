@@ -12,8 +12,8 @@ source:
   git_rev: 74a81fe07d8b009b4d6a7c9e1569972e20bf92d3
 
 build:
-  number: 6
-  string: asp_6          # rebuild with =asp* pins, gcc 14
+  number: 7
+  string: asp_7          # glibc floor fix (re-add stdlib pin)
   entry_points:
     - isd_generate = ale.isd_generate:main
   skip: true  # [win]
@@ -23,10 +23,7 @@ requirements:
     - python
     - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - {{ compiler('cxx') }}
-    # ASP: removed `{{ stdlib("c") }}` - it expanded to the bogus, unsatisfiable
-    # package c_osx-arm64 (c_stdlib variant is undefined in our local
-    # conda-build; conda-forge CI supplies it via conda-forge-pinning, we
-    # don't). The cxx compiler activation already brings the macOS sysroot.
+    - {{ stdlib('c') }}
     - cmake >=3.15
     - make
     # ASP: pip+setuptools MUST be here in BUILD (not just host). build.sh runs
