@@ -12,8 +12,8 @@ source:
   git_rev: 74a81fe07d8b009b4d6a7c9e1569972e20bf92d3
 
 build:
-  number: 7
-  string: asp_7          # glibc floor fix (re-add stdlib pin)
+  number: 8
+  string: asp_8_{{ target_platform | replace("-", "_") }}          # glibc floor fix (re-add stdlib pin)
   entry_points:
     - isd_generate = ale.isd_generate:main
   skip: true  # [win]
