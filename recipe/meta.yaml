@@ -4,16 +4,19 @@ package:
   name: {{ name|lower }}
   version: {{ version }}
 
-# ASP build: source is DOI-USGS/ale main @ 94cdef7 (8 commits past the 1.2.0
-# tag), which INCLUDES our merged HRSC fix #716; the released 1.2.0 tarball
-# does NOT. setup.py hardcodes VERSION="1.2.0" so the version stays clean 1.2.0.
+# ASP CaSSIS build: source is oleg-alexandrov/ale branch lagrange_rotation_python
+# @ b458960 (past the 1.2.0 tag). Adds the TGO CaSSIS driver (#720), the
+# isd_generate metakernel fix (#725), and Lagrange quaternion interpolation
+# (#726/#727), plus the CASSIS C++ DistortionType enum that usgscsm references.
+# setup.py hardcodes VERSION="1.2.0" so the version stays clean 1.2.0; the =cassis
+# build string marks this as the CaSSIS-capable build.
 source:
   git_url: https://github.com/oleg-alexandrov/ale.git
-  git_rev: 74a81fe07d8b009b4d6a7c9e1569972e20bf92d3
+  git_rev: b45896057ce5dd6b02877194a871163092d28a86
 
 build:
-  number: 8
-  string: asp_8_{{ target_platform | replace("-", "_") }}          # glibc floor fix (re-add stdlib pin)
+  number: 0
+  string: cassis_0_{{ target_platform | replace("-", "_") }}
   entry_points:
     - isd_generate = ale.isd_generate:main
   skip: true  # [win]
@@ -47,6 +50,10 @@ requirements:
     - setuptools <80
   run:
     - networkx
+    # CaSSIS ale imports osgeo.gdal (kernel_access.py, drivers/__init__.py,
+    # base.py). No explicit version pin: ASP already pins gdal 3.12.2 (ISIS
+    # floor) and that drives it in a consistent solve.
+    - gdal
     - {{ pin_compatible('nlohmann_json', min_pin='x.x.x', max_pin='x.x.x') }}
     - numpy
     - pvl >=1.0
