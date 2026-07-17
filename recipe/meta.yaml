@@ -12,11 +12,11 @@ package:
 # build string marks this as the CaSSIS-capable build.
 source:
   git_url: https://github.com/oleg-alexandrov/ale.git
-  git_rev: b45896057ce5dd6b02877194a871163092d28a86
+  git_rev: 8b5a80f22a83ec21c5ab4624705d986372fe7f18  # ale_cassis_integration: #732 CaSSIS addendum + #727 Lagrange
 
 build:
-  number: 0
-  string: cassis_0_{{ target_platform | replace("-", "_") }}
+  number: 1
+  string: cassis_1_{{ target_platform | replace("-", "_") }}
   entry_points:
     - isd_generate = ale.isd_generate:main
   skip: true  # [win]
