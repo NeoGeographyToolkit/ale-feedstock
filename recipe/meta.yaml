@@ -4,19 +4,25 @@ package:
   name: {{ name|lower }}
   version: {{ version }}
 
-# ASP CaSSIS build: source is oleg-alexandrov/ale branch lagrange_rotation_python
-# @ b458960 (past the 1.2.0 tag). Adds the TGO CaSSIS driver (#720), the
-# isd_generate metakernel fix (#725), and Lagrange quaternion interpolation
-# (#726/#727), plus the CASSIS C++ DistortionType enum that usgscsm references.
-# setup.py hardcodes VERSION="1.2.0" so the version stays clean 1.2.0; the =cassis
-# build string marks this as the CaSSIS-capable build.
+# ASP umbrella build: source is oleg-alexandrov/ale branch lro_nac_odtk_scalar
+# @ 4a2b496 = latest DOI-USGS/ale main (through #733) PLUS our unmerged LRO NAC
+# odtk fix (a single-valued INS<ikid>_OD_K keyword is coerced to a list, else
+# USGSCSM cannot parse the lrolrocnac distortion and the camera fails to build).
+# Supersedes the earlier =cassis umbrella: the CaSSIS driver (#720), addendum
+# constants (#732), Viking fix (#734) and Lagrange interpolation (#726) are all
+# now merged upstream. The ALE C++ library (libale.so) is byte-identical to the
+# =cassis build (frozen since #728), so pre-built ISIS/USGSCSM that link libale
+# stay binary-compatible; every newer change is Python/SWIG only. setup.py
+# hardcodes VERSION="1.2.0" so the version stays clean 1.2.0; the =asp build
+# string marks our channel build (continues asp_7; the =cassis interlude never
+# matched the stereopipeline `ale =1.2.0=asp*` pin).
 source:
   git_url: https://github.com/oleg-alexandrov/ale.git
-  git_rev: 8b5a80f22a83ec21c5ab4624705d986372fe7f18  # ale_cassis_integration: #732 CaSSIS addendum + #727 Lagrange
+  git_rev: 4a2b49689d01789e0bc024c8332ee3ecb25f074d  # lro_nac_odtk_scalar: usgs/main (#733) + LRO NAC odtk fix
 
 build:
-  number: 1
-  string: cassis_1_{{ target_platform | replace("-", "_") }}
+  number: 8
+  string: asp_8_{{ target_platform | replace("-", "_") }}
   entry_points:
     - isd_generate = ale.isd_generate:main
   skip: true  # [win]
@@ -29,6 +35,16 @@ requirements:
     - {{ stdlib('c') }}
     - cmake >=3.15
     - make
+    # ASP: the umbrella setup.py now always builds the _ale_c SWIG extension
+    # (ext_modules with swig_opts=['-c++']), so swig is required at build time.
+    # It is build-only: the wrapper is compiled into _ale_c and adds no runtime
+    # dependency. (The older =cassis setup.py skipped the extension -> pure-python
+    # wheel and needed no swig.)
+    - swig
+    # setup.py points the extension at CONDA_PREFIX/include/eigen3, which during
+    # the pip step is the BUILD env, so eigen must be in build too (it is also in
+    # host for the cmake libale build). Header-only -> no runtime dependency.
+    - eigen >=3,<4
     # ASP: pip+setuptools MUST be here in BUILD (not just host). build.sh runs
     # `pip install . --no-build-isolation` with the BUILD-env python/pip, so the
     # backend (setuptools.build_meta) must live in BUILD or pip dies with
