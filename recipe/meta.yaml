@@ -4,25 +4,24 @@ package:
   name: {{ name|lower }}
   version: {{ version }}
 
-# ASP umbrella build: source is oleg-alexandrov/ale branch lro_nac_odtk_scalar
-# @ 4a2b496 = latest DOI-USGS/ale main (through #733) PLUS our unmerged LRO NAC
-# odtk fix (a single-valued INS<ikid>_OD_K keyword is coerced to a list, else
-# USGSCSM cannot parse the lrolrocnac distortion and the camera fails to build).
-# Supersedes the earlier =cassis umbrella: the CaSSIS driver (#720), addendum
-# constants (#732), Viking fix (#734) and Lagrange interpolation (#726) are all
-# now merged upstream. The ALE C++ library (libale.so) is byte-identical to the
-# =cassis build (frozen since #728), so pre-built ISIS/USGSCSM that link libale
-# stay binary-compatible; every newer change is Python/SWIG only. setup.py
-# hardcodes VERSION="1.2.0" so the version stays clean 1.2.0; the =asp build
-# string marks our channel build (continues asp_7; the =cassis interlude never
-# matched the stereopipeline `ale =1.2.0=asp*` pin).
+# ASP build: source is oleg-alexandrov/ale branch lro_nac_odtk_on_asp7 @ b8b6ea7
+# = the asp_7 source (74a81fe) PLUS only the Python LRO NAC odtk fix (a single-
+# valued INS<ikid>_OD_K keyword is coerced to a list, else USGSCSM cannot parse
+# the lrolrocnac distortion and the camera fails to build). This deliberately
+# stays on the pre-#726 ale C++ library (libale.so), byte-identical to asp_7, so
+# it is binary-compatible with the shipped conda isis 10.0.0 asp_4 (built against
+# the pre-#726 ale headers). asp_8 shipped the post-#726 libale under the same
+# `=asp*` pin without rebuilding isis, which crashed ISIS camera loads with a heap
+# corruption in ale::Orientations; asp_9 reverts the ABI while keeping the odtk
+# fix. The odtk fix is Python-only, so no isis/usgscsm rebuild is needed. setup.py
+# hardcodes VERSION="1.2.0" so the version stays clean 1.2.0.
 source:
   git_url: https://github.com/oleg-alexandrov/ale.git
-  git_rev: 4a2b49689d01789e0bc024c8332ee3ecb25f074d  # lro_nac_odtk_scalar: usgs/main (#733) + LRO NAC odtk fix
+  git_rev: b8b6ea7d15d163f68b85b611b5d813fb1d0f5b34
 
 build:
-  number: 8
-  string: asp_8_{{ target_platform | replace("-", "_") }}
+  number: 9
+  string: asp_9_{{ target_platform | replace("-", "_") }}  # asp_7 source + LRO NAC odtk fix, pre-#726 ABI
   entry_points:
     - isd_generate = ale.isd_generate:main
   skip: true  # [win]
@@ -35,16 +34,6 @@ requirements:
     - {{ stdlib('c') }}
     - cmake >=3.15
     - make
-    # ASP: the umbrella setup.py now always builds the _ale_c SWIG extension
-    # (ext_modules with swig_opts=['-c++']), so swig is required at build time.
-    # It is build-only: the wrapper is compiled into _ale_c and adds no runtime
-    # dependency. (The older =cassis setup.py skipped the extension -> pure-python
-    # wheel and needed no swig.)
-    - swig
-    # setup.py points the extension at CONDA_PREFIX/include/eigen3, which during
-    # the pip step is the BUILD env, so eigen must be in build too (it is also in
-    # host for the cmake libale build). Header-only -> no runtime dependency.
-    - eigen >=3,<4
     # ASP: pip+setuptools MUST be here in BUILD (not just host). build.sh runs
     # `pip install . --no-build-isolation` with the BUILD-env python/pip, so the
     # backend (setuptools.build_meta) must live in BUILD or pip dies with
@@ -66,10 +55,6 @@ requirements:
     - setuptools <80
   run:
     - networkx
-    # CaSSIS ale imports osgeo.gdal (kernel_access.py, drivers/__init__.py,
-    # base.py). No explicit version pin: ASP already pins gdal 3.12.2 (ISIS
-    # floor) and that drives it in a consistent solve.
-    - gdal
     - {{ pin_compatible('nlohmann_json', min_pin='x.x.x', max_pin='x.x.x') }}
     - numpy
     - pvl >=1.0
